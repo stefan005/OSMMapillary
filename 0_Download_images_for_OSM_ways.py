@@ -1,13 +1,13 @@
-from pathlib import Path
-import time
 import argparse
-import shutil
 import json
-import urllib
-import pandas as pd
-import overpy
 import os
+import shutil
+import time
+import urllib
+from pathlib import Path
 
+import overpy
+import pandas as pd
 
 BASE_DIR = './ressources/mapillary_raw/'
 # See https://www.mapillary.com/developer/api-documentation/
@@ -110,6 +110,7 @@ def get_labeled_data() -> None:
                     [node.id, node.lat, node.lon, way.id, way.tags["surface"]])
     df_nodes_surface = pd.DataFrame(
         nodes_surface, columns=['nodeId', 'nodeLat', 'nodeLon', 'wayId', 'waySurface'])
+    df_nodes_surface = df_nodes_surface.loc[(df_nodes_surface.waySurface != "asphalt") | (df_nodes_surface.index%25 == 0)]
     df_nodes_surface.apply(download_images_nearby,
                            dirColumn='waySurface', baseDir=BASE_DIR + 'labeled/', axis=1)
 
