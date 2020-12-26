@@ -18,7 +18,7 @@ MAPILLARY_API_IM_RETRIEVE_URL = 'https://d1cuyjsrcm0gby.cloudfront.net/'
 CLIENT_ID = 'TG1sUUxGQlBiYWx2V05NM0pQNUVMQTo2NTU3NTBiNTk1NzM1Y2U2'
 nrOfImageDownloadsPerNode = 100
 maxDistance = 5
-min_quality_score = 4
+min_quality_score = 2
 
 
 '''
@@ -99,7 +99,20 @@ def download_images_nearby(node, dirColumn, baseDir) -> None:
 def get_labeled_data() -> None:
     # create directories for saving
     create_dirs(BASE_DIR + "labeled/")
-    bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.729140, 9.857140, 49.822259, 10.008888 # Würzburg
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.729140, 9.857140, 49.822259, 10.008888 # Würzburg
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 48.629630, 9.386075, 48.848225, 9.014912 # Stuttgart
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 48.445283739783264,9.169244707902863,48.5177325182498,9.255454552487208 #Reutlingen
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 47.5399288434551,9.287805036523991,47.58562233499498,9.38796223098575 #Romanshorn (CH)
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 47.45821049392114,10.779062586126997,47.489848282639,10.854406692718158 #Plansee
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 47.39842578284083,11.458676624509508,47.45061953158145,11.605909070948542 #Karwendel
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 47.7899375706767,12.561436523959514,47.84948093480779,12.758245326012684 #Siegsdorf(Bayern)
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 47.30256210546281,13.039457154551314,47.349930838509835,13.17087134038843 #Schwarzach im Pongau
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 46.919649950229825,10.045231801229534,46.96595148201669,10.082757091129224#Silvretta (AT)
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 47.23220677687661,8.676197576814388,47.31308502409897,8.797109894245295 # Zürichsee Süd
+    bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.36379746541175,8.331433176685323,49.4027511391986,8.740882735389278 # Mannheim/Heidelberg1
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.4027511391986,8.331433176685323,49.4727511391986,8.740882735389278 # Mannheim/Heidelberg2
+    #bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.4727511391986,8.331433176685323,49.5727511391986,8.740882735389278 # Mannheim/Heidelberg3
+    
     api = overpy.Overpass()
     result = api.query(
         f'node["surface"]({bbox_minlat},{bbox_minlon},{bbox_maxlat},{bbox_maxlon});way["surface"]["highway"]({bbox_minlat},{bbox_minlon},{bbox_maxlat},{bbox_maxlon});(._;>;);out;')
@@ -111,7 +124,7 @@ def get_labeled_data() -> None:
                     [node.id, node.lat, node.lon, way.id, way.tags["surface"]])
     df_nodes_surface = pd.DataFrame(
         nodes_surface, columns=['nodeId', 'nodeLat', 'nodeLon', 'wayId', 'waySurface'])
-    df_nodes_surface = df_nodes_surface.loc[(df_nodes_surface.waySurface != "asphalt") | (df_nodes_surface.index%25 == 0)]
+    df_nodes_surface = df_nodes_surface.loc[(df_nodes_surface.waySurface != "asphalt") | (df_nodes_surface.index%40 == 0)]
     df_nodes_surface.apply(download_images_nearby,
                            dirColumn='waySurface', baseDir=BASE_DIR + 'labeled/', axis=1)
 
