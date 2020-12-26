@@ -18,6 +18,7 @@ MAPILLARY_API_IM_RETRIEVE_URL = 'https://d1cuyjsrcm0gby.cloudfront.net/'
 CLIENT_ID = 'TG1sUUxGQlBiYWx2V05NM0pQNUVMQTo2NTU3NTBiNTk1NzM1Y2U2'
 nrOfImageDownloadsPerNode = 100
 maxDistance = 5
+min_quality_score = 4
 
 
 '''
@@ -38,8 +39,8 @@ def query_search_api(lon, lat, max_results) -> str:
 
     # Create URL
     params = urllib.parse.urlencode(list(zip(
-        ['client_id', 'closeto', 'radius', 'per_page', 'pano'],
-        [CLIENT_ID, ','.join([str(lon), str(lat)]), str(maxDistance), str(max_results), str('false')])), doseq=True)
+        ['client_id', 'closeto', 'radius', 'per_page', 'pano','min_quality_score'],
+        [CLIENT_ID, ','.join([str(lon), str(lat)]), str(maxDistance), str(max_results), str('false'),str(min_quality_score)])), doseq=True)
 
     print(MAPILLARY_API_IM_SEARCH_URL + params)
 
@@ -98,7 +99,7 @@ def download_images_nearby(node, dirColumn, baseDir) -> None:
 def get_labeled_data() -> None:
     # create directories for saving
     create_dirs(BASE_DIR + "labeled/")
-    bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.729140, 9.857140, 49.822259, 10.008888
+    bbox_minlat, bbox_minlon, bbox_maxlat, bbox_maxlon = 49.729140, 9.857140, 49.822259, 10.008888 # Würzburg
     api = overpy.Overpass()
     result = api.query(
         f'node["surface"]({bbox_minlat},{bbox_minlon},{bbox_maxlat},{bbox_maxlon});way["surface"]["highway"]({bbox_minlat},{bbox_minlon},{bbox_maxlat},{bbox_maxlon});(._;>;);out;')
