@@ -1,12 +1,14 @@
 import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn, optim
+from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets, models, transforms
 
-data_dir = 'ressources/mapillary_raw/validated'
-test_dir = 'ressources/mapillary_raw/test'
+DATA_DIR = 'ressources/mapillary_raw/validated'
+TEST_DIR = 'ressources/mapillary_raw/test'
 
 def make_weights_for_balanced_classes(images, nclasses):
     count = [0] * nclasses
@@ -23,15 +25,18 @@ def make_weights_for_balanced_classes(images, nclasses):
 
 
 def load_split_train_test(datadir, testdir="", valid_size=.2):
-
+    '''
+    Create loader for train and testdataset. If no testdir is given, the datadir is
+    randomly splitted in train and test
+    '''
     train_transforms = transforms.Compose([transforms.Resize(224), transforms.CenterCrop(224),
                                             transforms.ToTensor(),
-                                            transforms.Normalize(mean=[0.485, 0.456, 0.406], 
+                                            transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                             std=[0.229, 0.224, 0.225]),
                                             ])
     test_transforms = transforms.Compose([transforms.Resize(224), transforms.CenterCrop(224),
                                             transforms.ToTensor(),
-                                            transforms.Normalize(mean=[0.485, 0.456, 0.406], 
+                                            transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                             std=[0.229, 0.224, 0.225]),
                                             ])
     train_data = datasets.ImageFolder(datadir,
@@ -52,7 +57,6 @@ def load_split_train_test(datadir, testdir="", valid_size=.2):
         indices = list(range(num_train))
         split = int(np.floor(valid_size * num_train))
         np.random.shuffle(indices)
-        from torch.utils.data.sampler import SubsetRandomSampler
         train_idx, test_idx = indices[split:], indices[:split]
         train_sampler = SubsetRandomSampler(train_idx)
         test_sampler = SubsetRandomSampler(test_idx)
@@ -63,7 +67,7 @@ def load_split_train_test(datadir, testdir="", valid_size=.2):
                                              sampler=test_sampler, batch_size=64)
     return trainloader, testloader
 
-trainloader, testloader = load_split_train_test(data_dir, test_dir)
+trainloader, testloader = load_split_train_test(DATA_DIR, TEST_DIR)
 print(trainloader.dataset.classes)
 print(testloader.dataset.classes)
 
