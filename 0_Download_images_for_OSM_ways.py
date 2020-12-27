@@ -1,8 +1,6 @@
 import argparse
 import json
 import os
-import shutil
-import time
 import urllib
 from pathlib import Path
 
@@ -148,8 +146,15 @@ def get_unlabeld_data() -> None:
 
 
 def main() -> None:
-    get_labeled_data()
-    get_unlabeld_data
+    parser = argparse.ArgumentParser(description='Dowload images from mapillary. Either labeled with surface of OSM street or unlabeled.')
+    parser.add_argument('-u','--unlabeled',action='store_true',
+                    help='get pictures of ways without surface')
+
+    args = parser.parse_args()
+    if(not args.unlabeled):
+        get_labeled_data()
+    else:
+        get_unlabeld_data()
 
 
 if __name__ == "__main__":
